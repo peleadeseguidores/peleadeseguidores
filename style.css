@@ -1,0 +1,56 @@
+/* --- Estilos generales --- */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #1f1c2c, #928dab);
+  color: #fff;
+  text-align: center;
+}
+
+/* --- Encabezado --- */
+header {
+  background: #2a2a72;
+  padding: 15px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+/* --- Contenedor del juego --- */
+.game-container {
+  margin-top: 30px;
+}
+
+/* --- Canvas --- */
+canvas {
+  border: 3px solid #fff;
+  background: #000;
+  border-radius: 10px;
+}
+
+/* --- Botón --- */
+button {
+  margin-top: 15px;
+  padding: 10px 20px;
+  font-size: 18px;
+  font-weight: bold;
+  background: #ff416c;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #fff;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+button:hover {
+  background: #ff4b2b;
+  transform: scale(1.1);
+}
+
+/* --- Footer --- */
+footer {
+  margin-top: 40px;
+  font-size: 14px;
+  opacity: 0.8;
+}
