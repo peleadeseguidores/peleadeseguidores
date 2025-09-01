@@ -1,54 +1,47 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Registro Jugador</title>
+  <meta charset="UTF-8" />
+  <title>Registro de Jugador</title>
 </head>
 <body>
-  <h2>Registrar Jugador</h2>
+  <h2>Registro de Jugador</h2>
   <form id="playerForm">
-    <label>@Usuario:</label><br>
-    <input type="text" id="username" required><br><br>
-
-    <label>Foto:</label><br>
-    <input type="file" id="photo" accept="image/*" required><br><br>
-
+    <label>Usuario de Instagram (@):</label><br />
+    <input type="text" id="username" placeholder="@usuario" required /><br /><br />
+    <label>Subir foto:</label><br />
+    <input type="file" id="photo" accept="image/*" required /><br /><br />
     <button type="submit">Registrar</button>
   </form>
-
-  <p id="msg"></p>
-
+  <p id="response"></p>
   <script>
-    const WEB_APP_URL = "TU_URL_DE_APPS_SCRIPT/exec";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzWklW40MKqeGeVzV34YCEcj0vO3JK0l7FnW-1Y6LOEtJZj7imIRnJ5iyvAeoHpKyKN/exec";
 
-    document.getElementById("playerForm").addEventListener("submit", async function(e) {
+    document.getElementById("playerForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const username = document.getElementById("username").value;
       const file = document.getElementById("photo").files[0];
+      if (!file) return alert("Por favor selecciona una foto.");
 
-      if (!file) return alert("Selecciona una foto");
-
-      // Convertir archivo a Base64
       const reader = new FileReader();
-      reader.onloadend = async function () {
+      reader.onloadend = async () => {
         const base64 = reader.result.split(",")[1];
-
-        const data = {
-          username: username,
-          photo: base64,
+        const payload = {
+          username,
           filename: file.name,
+          photo: base64
         };
 
         try {
-          let res = await fetch(WEB_APP_URL, {
+          const res = await fetch(WEB_APP_URL, {
             method: "POST",
-            body: JSON.stringify(data),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
           });
-          let txt = await res.text();
-          document.getElementById("msg").innerText = txt;
+          document.getElementById("response").innerText = await res.text();
         } catch (err) {
-          document.getElementById("msg").innerText = "Error al enviar";
+          document.getElementById("response").innerText = "Error: " + err;
         }
       };
       reader.readAsDataURL(file);
