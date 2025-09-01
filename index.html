@@ -15,12 +15,40 @@
     button{height:46px;border:0;background:#22c55e;color:#fff;border-radius:10px;font-weight:600;font-size:16px;cursor:pointer}
     button:disabled{opacity:.7;cursor:not-allowed}
     .msg{min-height:20px;font-size:14px;text-align:center}
-    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
-    .player{background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden}
-    .player img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}
-    .pbody{padding:10px}
-    .name{font-weight:600;color:#1f2937}
-    .small{color:#6b7280;font-size:12px;margin-top:2px}
+
+    /* Avatar Stack Styles */
+    .avatar-stack {
+      display: flex;
+      align-items: center;
+      gap: 0; /* No gap, overlap via negative margin */
+      overflow-x: auto;
+      padding: 10px 0;
+      min-height: 56px;
+    }
+    .avatar-item {
+      position: relative;
+      margin-left: -18px; /* overlap */
+      border: 2px solid #fff;
+      border-radius: 50%;
+      background: #fff;
+      transition: z-index 0.2s;
+      z-index: 1;
+    }
+    .avatar-item:first-child {margin-left: 0;}
+    .avatar-item:hover, .avatar-item:focus {z-index: 10;}
+    .avatar-img {
+      width: 48px;
+      height: 48px;
+      object-fit: cover;
+      border-radius: 50%;
+      display: block;
+      background: #eee;
+    }
+    @media (max-width:600px) {
+      .avatar-img { width: 36px; height: 36px; }
+      .avatar-stack { min-height: 42px; }
+      .avatar-item { margin-left: -12px; }
+    }
   </style>
 </head>
 <body>
@@ -38,12 +66,11 @@
   </div>
 
   <div class="card">
-    <div class="grid" id="lista"></div>
+    <div class="avatar-stack" id="lista"></div>
   </div>
 </div>
 
 <script>
-// Cambia esta URL por la de tu script web publicado si alguna vez la actualizas.
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzeSlPx10-dm2p2wllLTz4nxB-xvlcOAdG5iK3AMj-wqKyJdlMdyaKEgLfHYdUMyZ5T/exec";
 
 const totalEl = document.querySelector("#total");
@@ -67,7 +94,7 @@ async function loadJugadores(){
     const res=await fetch(WEB_APP_URL);
     const data=await res.json();
     totalEl.textContent=data.total??0;
-    renderLista(data.jugadores||[]);
+    renderAvatarStack(data.jugadores||[]);
   }catch(e){
     msg.textContent="No se pudo cargar la lista.";
     msg.style.color = "#b91c1c";
@@ -75,18 +102,15 @@ async function loadJugadores(){
   }
 }
 
-function renderLista(items){
+// Render avatar stack (circles in a row, overlapped)
+function renderAvatarStack(items){
   if(!items.length){
-    listaEl.innerHTML=`<div class="small" style="grid-column:1/-1;text-align:center">Aún no hay jugadores registrados.</div>`;
+    listaEl.innerHTML=`<div class="small" style="width:100%;text-align:center">Aún no hay jugadores registrados.</div>`;
     return;
   }
   listaEl.innerHTML=items.map(j=>`
-    <div class="player">
-      <img src="${j.foto}" alt="${escapeHtml(j.nombre)}" loading="lazy">
-      <div class="pbody">
-        <div class="name">${escapeHtml(j.nombre)}</div>
-        <div class="small">${j.fecha?new Date(j.fecha).toLocaleString():""}</div>
-      </div>
+    <div class="avatar-item" title="${escapeHtml(j.nombre)}">
+      <img class="avatar-img" src="${j.foto}" alt="${escapeHtml(j.nombre)}" loading="lazy">
     </div>
   `).join("");
 }
