@@ -1,63 +1,49 @@
-const SHEET_NAME = "Jugadores";
-const FOLDER_NAME = "FotosJugadores";
-
-function getSheet() {
-  return SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
-}
-
-function getFolder() {
-  const folders = DriveApp.getFoldersByName(FOLDER_NAME);
-  if (folders.hasNext()) return folders.next();
-  return DriveApp.createFolder(FOLDER_NAME);
-}
-
-// GET: Lista de jugadores
-function doGet() {
-  const sheet = getSheet();
-  const data = sheet.getDataRange().getValues();
-  const jugadores = [];
-
-  for (let i = 1; i < data.length; i++) {
-    const [nombre, url_foto, fecha] = data[i];
-    if (nombre && url_foto) {
-      jugadores.push({ nombre, url_foto, fecha });
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Jugadores</title>
+  <style>
+    .jugador {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1em;
+      border-bottom: 1px solid #ddd;
+      padding: 0.5em;
     }
-  }
-
-  const output = ContentService.createTextOutput(JSON.stringify({ total: jugadores.length, jugadores }));
-  output.setMimeType(ContentService.MimeType.JSON);
-  return output;
-}
-
-// POST: Recibe nombre + foto base64
-function doPost(e) {
-  try {
-    const nombre = e.parameter.nombre;
-    const base64 = e.parameter.foto;
-    const mimeType = e.parameter.mimetype || "image/png";
-    const filename = e.parameter.filename || "foto.png";
-
-    if (!nombre || !base64) {
-      return ContentService.createTextOutput(JSON.stringify({ status: "error", message: "Faltan parámetros" }))
-                           .setMimeType(ContentService.MimeType.JSON);
+    .jugador img {
+      width: 70px; height: 70px;
+      object-fit: cover; border-radius: 50%; margin-right: 1em;
+      border: 2px solid #aaa;
     }
-
-    const bytes = Utilities.base64Decode(base64);
-    const blob = Utilities.newBlob(bytes, mimeType, filename);
-
-    const folder = getFolder();
-    const file = folder.createFile(blob);
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    // URL directa para mostrar imagen en <img>:
-    const url_foto = "https://drive.google.com/uc?export=view&id=" + file.getId();
-
-    const sheet = getSheet();
-    sheet.appendRow([nombre, url_foto, new Date()]);
-
-    return ContentService.createTextOutput(JSON.stringify({ status: "success", url_foto }))
-                         .setMimeType(ContentService.MimeType.JSON);
-  } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({ status: "error", message: err.message }))
-                         .setMimeType(ContentService.MimeType.JSON);
-  }
-}
+    .jugador span {
+      font-size: 1.2em;
+      color: #222;
+    }
+  </style>
+</head>
+<body>
+  <h1>Jugadores registrados</h1>
+  <div id="jugadores-list"></div>
+  <script>
+    fetch("https://script.google.com/macros/s/AKfycbwsw5B14bXgtTt0hM0C4G1X2Qv3sjTW4qXsv7TCjTYCqoLs4Yke-l9euD4XYJeUUdxF/exec")
+      .then(res => res.json())
+      .then(data => {
+        const cont = document.getElementById("jugadores-list");
+        if (!Array.isArray(data.jugadores)) {
+          cont.innerHTML = '<b>Error al cargar jugadores</b>';
+          return;
+        }
+        data.jugadores.forEach(j => {
+          const div = document.createElement("div");
+          div.className = "jugador";
+          div.innerHTML = `
+            <img src="${j.url_foto}" alt="foto de ${j.nombre}" onerror="this.src='https://via.placeholder.com/70?text=No+Img'">
+            <span>${j.nombre}</span>
+          `;
+          cont.appendChild(div);
+        });
+      });
+  </script>
+</body>
+</html>
