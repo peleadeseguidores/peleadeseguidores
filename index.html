@@ -1,90 +1,57 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Registro de Jugadores</title>
-  <style>
-    :root { --bg:#0f0f12; --card:#17171c; --text:#e8e8f0; --muted:#9aa0a6; --acc:#ffd54a; }
-    *{ box-sizing: border-box; }
-    body{
-      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: radial-gradient(1200px 800px at 80% -10%, #2b2040 0%, #121216 55%), var(--bg);
-      min-height:100vh; display:grid; place-items:center; color:var(--text);
-    }
-    .card{
-      width:min(420px, 92vw); background:var(--card); padding:28px; border-radius:18px;
-      box-shadow:0 10px 35px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.02);
-      border:1px solid rgba(255,255,255,.06)
-    }
-    h1{ margin:0 0 8px; font-weight:700; letter-spacing:.3px; }
-    p{ margin:0 0 16px; color:var(--muted); }
-    label{ display:block; margin:14px 0 6px; font-size:14px; color:#cfd3dc }
-    input{
-      width:100%; padding:12px 14px; background:#0f0f13; border:1px solid #2a2f39; color:var(--text);
-      border-radius:12px; outline:none; font-size:15px;
-    }
-    input:focus{ border-color:#3a4353; box-shadow:0 0 0 3px rgba(123,97,255,.15) }
-    button{
-      width:100%; margin-top:18px; padding:12px 16px; border:0; border-radius:12px;
-      background:linear-gradient(135deg, #ffb300, #ff7b00); color:#1a1200; font-weight:800;
-      letter-spacing:.3px; cursor:pointer; transition:transform .04s ease;
-    }
-    button:active{ transform:translateY(1px) }
-    .ok, .err{ margin-top:12px; font-size:14px; }
-    .ok{ color:#b4ffb4 } .err{ color:#ffadad }
-    .hint{ font-size:12px; color:#98a1b3; margin-top:8px }
-  </style>
+  <meta charset="UTF-8">
+  <title>Registro Jugador</title>
 </head>
 <body>
-  <div class="card">
-    <h1>Registro</h1>
-    <p>Ingresa tu @usuario de Instagram y la URL de tu foto de perfil.</p>
+  <h2>Registrar Jugador</h2>
+  <form id="playerForm">
+    <label>@Usuario:</label><br>
+    <input type="text" id="username" required><br><br>
 
-    <label for="usuario">@usuario</label>
-    <input id="usuario" placeholder="@usuario" autocomplete="nickname" required />
+    <label>Foto:</label><br>
+    <input type="file" id="photo" accept="image/*" required><br><br>
 
-    <label for="url_foto">URL de la foto</label>
-    <input id="url_foto" type="url" placeholder="https://..." required />
-    <div class="hint">Tip: puedes pegar el enlace directo de una imagen que tengas subida en la web.</div>
+    <button type="submit">Registrar</button>
+  </form>
 
-    <button id="send">Registrar</button>
-    <div id="msg" aria-live="polite"></div>
-  </div>
+  <p id="msg"></p>
 
   <script>
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzPgJ09yPk5DM1TmEVkJdzVqJDfSq5BdjbBaJvJq35L43VVjnXFdttUv1HsMO0AgJLA/exec"; // <- pega aquí tu URL de Apps Script (termina en /exec)
+    const WEB_APP_URL = "TU_URL_DE_APPS_SCRIPT/exec";
 
-    document.getElementById("send").addEventListener("click", async () => {
-      const usuario = document.getElementById("usuario").value.trim();
-      const url_foto = document.getElementById("url_foto").value.trim();
-      const msg = document.getElementById("msg");
-      msg.textContent = ""; msg.className = "";
+    document.getElementById("playerForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
 
-      if (!usuario.startsWith("@")) {
-        msg.textContent = "El usuario debe comenzar con @"; msg.className = "err"; return;
-      }
-      if (!/^https?:\/\//i.test(url_foto)) {
-        msg.textContent = "Ingresa una URL válida (http/https)"; msg.className = "err"; return;
-      }
+      const username = document.getElementById("username").value;
+      const file = document.getElementById("photo").files[0];
 
-      try {
-        const res = await fetch(WEB_APP_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ nombre: usuario, url_foto })
-        });
-        const data = await res.json().catch(()=>({ok:false}));
-        if (data.ok) {
-          msg.textContent = "✅ Usuario registrado correctamente."; msg.className = "ok";
-          document.getElementById("usuario").value = "";
-          document.getElementById("url_foto").value = "";
-        } else {
-          msg.textContent = "❌ No se pudo registrar."; msg.className = "err";
+      if (!file) return alert("Selecciona una foto");
+
+      // Convertir archivo a Base64
+      const reader = new FileReader();
+      reader.onloadend = async function () {
+        const base64 = reader.result.split(",")[1];
+
+        const data = {
+          username: username,
+          photo: base64,
+          filename: file.name,
+        };
+
+        try {
+          let res = await fetch(WEB_APP_URL, {
+            method: "POST",
+            body: JSON.stringify(data),
+          });
+          let txt = await res.text();
+          document.getElementById("msg").innerText = txt;
+        } catch (err) {
+          document.getElementById("msg").innerText = "Error al enviar";
         }
-      } catch (e) {
-        msg.textContent = "❌ Error de red."; msg.className = "err";
-      }
+      };
+      reader.readAsDataURL(file);
     });
   </script>
 </body>
