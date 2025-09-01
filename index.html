@@ -4,78 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pelea de Seguidores</title>
-  <style>
-    /* === ESTILOS GENERALES === */
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: linear-gradient(135deg, #1a1a1a, #333);
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-    }
-
-    header {
-      background: #222;
-      width: 100%;
-      padding: 15px;
-      text-align: center;
-      font-size: 1.5rem;
-      font-weight: bold;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
-    }
-
-    main {
-      flex: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 100%;
-      padding: 20px;
-    }
-
-    .game-container {
-      background: #111;
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.7);
-      text-align: center;
-      width: 90%;
-      max-width: 700px;
-    }
-
-    canvas {
-      border: 2px solid #00ffcc;
-      border-radius: 10px;
-      background: black;
-    }
-
-    footer {
-      text-align: center;
-      padding: 10px;
-      background: #111;
-      font-size: 0.9rem;
-      color: #aaa;
-    }
-
-    button {
-      background: #00ffcc;
-      border: none;
-      padding: 10px 20px;
-      margin-top: 15px;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    button:hover {
-      background: #00b38f;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <header>⚔️ Pelea de Seguidores ⚔️</header>
@@ -92,36 +21,6 @@
     Creado con ❤️ para los seguidores | GitHub Pages
   </footer>
 
-  <script>
-    // === LÓGICA DEL JUEGO (ejemplo simple, luego pegamos el tuyo) ===
-    const canvas = document.getElementById("gameCanvas");
-    const ctx = canvas.getContext("2d");
-
-    let x = 50, y = 50;
-
-    function startGame() {
-      x = 50;
-      y = 50;
-      draw();
-    }
-
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#00ffcc";
-      ctx.fillRect(x, y, 50, 50);
-    }
-
-    // Movimiento con teclas
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowUp") y -= 10;
-      if (e.key === "ArrowDown") y += 10;
-      if (e.key === "ArrowLeft") x -= 10;
-      if (e.key === "ArrowRight") x += 10;
-      draw();
-    });
-
-    // Dibuja al inicio
-    draw();
-  </script>
+  <script src="game.js"></script>
 </body>
 </html>
