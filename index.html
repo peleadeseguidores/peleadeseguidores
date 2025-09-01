@@ -1,49 +1,165 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Jugadores</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Registro de Jugadores</title>
   <style>
-    .jugador {
+    body{margin:0;font-family:system-ui,sans-serif;background:#f5f6fb}
+    .wrap{max-width:980px;margin:36px auto;padding:0 16px}
+    h1{text-align:center;color:#1f2937}
+    .counter{text-align:center;color:#6b7280;margin-bottom:22px}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px;margin-bottom:28px}
+    form{display:grid;gap:12px;max-width:560px;margin:0 auto}
+    input[type=text],input[type=file]{width:100%;padding:0 12px;height:44px;border:1px solid #e5e7eb;border-radius:10px;font-size:16px}
+    button{height:46px;border:0;background:#22c55e;color:#fff;border-radius:10px;font-weight:600;font-size:16px;cursor:pointer}
+    button:disabled{opacity:.7;cursor:not-allowed}
+    .msg{min-height:20px;font-size:14px;text-align:center}
+    .avatar-stack {
       display: flex;
       align-items: center;
-      margin-bottom: 1em;
-      border-bottom: 1px solid #ddd;
-      padding: 0.5em;
+      gap: 0;
+      overflow-x: auto;
+      padding: 10px 0;
+      min-height: 58px;
+      height: 62px;
     }
-    .jugador img {
-      width: 70px; height: 70px;
-      object-fit: cover; border-radius: 50%; margin-right: 1em;
-      border: 2px solid #aaa;
+    .avatar-item {
+      margin-left: -18px;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      background: #fff;
+      z-index: 1;
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 2px 4px #0001;
+      cursor: pointer;
     }
-    .jugador span {
-      font-size: 1.2em;
-      color: #222;
+    .avatar-item:first-child {margin-left: 0;}
+    .avatar-img {
+      width: 56px;
+      height: 56px;
+      object-fit: cover;
+      border-radius: 50%;
+      display: block;
+      background: #eee;
+    }
+    .avatar-placeholder {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #bdbdbd;
+    }
+    @media (max-width:600px) {
+      .avatar-img, .avatar-placeholder { width: 36px; height: 36px; }
+      .avatar-stack { min-height: 42px; height: 44px; }
+      .avatar-item { margin-left: -12px; width: 36px; height: 36px; }
     }
   </style>
 </head>
 <body>
-  <h1>Jugadores registrados</h1>
-  <div id="jugadores-list"></div>
-  <script>
-    fetch("https://script.google.com/macros/s/AKfycbwsw5B14bXgtTt0hM0C4G1X2Qv3sjTW4qXsv7TCjTYCqoLs4Yke-l9euD4XYJeUUdxF/exec")
-      .then(res => res.json())
-      .then(data => {
-        const cont = document.getElementById("jugadores-list");
-        if (!Array.isArray(data.jugadores)) {
-          cont.innerHTML = '<b>Error al cargar jugadores</b>';
-          return;
-        }
-        data.jugadores.forEach(j => {
-          const div = document.createElement("div");
-          div.className = "jugador";
-          div.innerHTML = `
-            <img src="${j.url_foto}" alt="foto de ${j.nombre}" onerror="this.src='https://via.placeholder.com/70?text=No+Img'">
-            <span>${j.nombre}</span>
-          `;
-          cont.appendChild(div);
-        });
-      });
-  </script>
+<div class="wrap">
+  <h1>Registro de Jugadores</h1>
+  <div class="counter">Total de jugadores: <span id="total">0</span></div>
+  <div class="card">
+    <form id="form">
+      <input id="nombre" type="text" placeholder="Usuario de Instagram (ej: @usuario)" required />
+      <input id="foto" type="file" accept="image/*" required />
+      <button id="btn" type="submit">Registrar</button>
+      <div id="msg" class="msg"></div>
+    </form>
+  </div>
+  <div class="card">
+    <div class="avatar-stack" id="lista"></div>
+  </div>
+</div>
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzeSlPx10-dm2p2wllLTz4nxB-xvlcOAdG5iK3AMj-wqKyJdlMdyaKEgLfHYdUMyZ5T/exec";
+const totalEl = document.querySelector("#total");
+const listaEl = document.querySelector("#lista");
+const form = document.querySelector("#form");
+const btn = document.querySelector("#btn");
+const msg = document.querySelector("#msg");
+
+async function toBase64(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>{const [prefix,b64]=reader.result.split(",");resolve({base64:b64,mime:prefix.split(":")[1].split(";")[0]})};
+    reader.onerror=()=>reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
+async function loadJugadores(){
+  msg.style.color = "#1f2937";
+  try{
+    const res=await fetch(WEB_APP_URL);
+    const data=await res.json();
+    totalEl.textContent=data.total??0;
+    renderAvatarStack(data.jugadores||[]);
+  }catch(e){
+    msg.textContent="No se pudo cargar la lista.";
+    msg.style.color = "#b91c1c";
+    console.error(e);
+  }
+}
+
+// Render avatar stack (solo círculos, tooltip con nombre, placeholder si no carga)
+function renderAvatarStack(items){
+  if(!items.length){
+    listaEl.innerHTML=`<div class="small" style="width:100%;text-align:center">Aún no hay jugadores registrados.</div>`;
+    return;
+  }
+  listaEl.innerHTML=items.map(j=>`
+    <div class="avatar-item" title="${escapeHtml(j.nombre)}">
+      <img class="avatar-img" src="${j.url_foto}" alt="${escapeHtml(j.nombre)}" loading="lazy"
+        onerror="this.style.display='none';this.parentNode.innerHTML='<div class=&quot;avatar-placeholder&quot;></div>';">
+    </div>
+  `).join("");
+}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+
+form.addEventListener("submit", async e=>{
+  e.preventDefault();
+  msg.textContent="";
+  msg.style.color = "#1f2937";
+  const nombre=document.querySelector("#nombre").value.trim();
+  const file=document.querySelector("#foto").files[0];
+  if(!nombre||!file){msg.textContent="Completa nombre y foto."; msg.style.color="#b91c1c"; return;}
+  if(file.size>8*1024*1024){msg.textContent="La imagen debe pesar menos de 8 MB."; msg.style.color="#b91c1c"; return;}
+  btn.disabled=true; btn.textContent="Enviando…";
+  try{
+    const {base64,mime}=await toBase64(file);
+    const body=new URLSearchParams({nombre,foto:base64,mimetype:mime,filename:file.name});
+    const res=await fetch(WEB_APP_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},
+      body
+    });
+    const out=await res.json();
+    if(out.status==="success"){
+      msg.style.color="#16a34a";msg.textContent="Jugador registrado con éxito.";
+      form.reset();
+      await loadJugadores();
+    } else throw new Error(out.message||"Error desconocido");
+  }catch(err){
+    console.error(err);
+    msg.style.color="#b91c1c";
+    msg.textContent="Error al registrar: "+err.message;
+  } finally{
+    btn.disabled=false;btn.textContent="Registrar";
+  }
+});
+loadJugadores();
+</script>
 </body>
 </html>
