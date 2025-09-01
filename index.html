@@ -7,58 +7,58 @@
 <body>
   <h2>Registro de Jugador</h2>
 
-  <form id="registroForm">
-    <label for="username">Usuario de Instagram (@):</label><br>
+  <form id="form">
+    <label>Usuario de Instagram (@):</label><br>
     <input type="text" id="username" name="username" required><br><br>
 
-    <label for="photo">Subir foto:</label><br>
+    <label>Subir foto:</label><br>
     <input type="file" id="photo" name="photo" accept="image/*" required><br><br>
 
     <button type="submit">Registrar</button>
   </form>
 
-  <p id="mensaje"></p>
+  <p id="result"></p>
 
   <script>
-    document.getElementById("registroForm").addEventListener("submit", async function(e) {
-      e.preventDefault();
+    document.getElementById("form").addEventListener("submit", async function(event) {
+      event.preventDefault();
 
       const username = document.getElementById("username").value;
-      const photo = document.getElementById("photo").files[0];
-      const mensaje = document.getElementById("mensaje");
+      const fileInput = document.getElementById("photo").files[0];
 
-      if (!photo) {
-        mensaje.textContent = "Por favor, selecciona una foto.";
+      if (!fileInput) {
+        alert("Por favor selecciona una foto");
         return;
       }
 
-      // Convertir la foto a base64
       const reader = new FileReader();
-      reader.onloadend = async function () {
-        const base64String = reader.result.split(",")[1];
+      reader.onloadend = async function() {
+        const base64String = reader.result.split(",")[1]; 
 
         try {
-          const response = await fetch("https://script.google.com/macros/s/AKfycbzWklW40MKqeGeVzV34YCEcj0vO3JK0l7FnW-1Y6LOEtJZj7imIRnJ5iyvAeoHpKyKN/exec", {
+          const response = await fetch("https://script.google.com/macros/s/AKfycbwsw5B14bXgtTt0hM0C4G1X2Qv3sjTW4qXsv7TCjTYCqoLs4Yke-l9euD4XYJeUUdxF/exec", {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
             body: JSON.stringify({
               username: username,
-              filename: photo.name,
+              filename: fileInput.name,
               photo: base64String
             }),
+            headers: {
+              "Content-Type": "application/json"
+            }
           });
 
-          const result = await response.text();
-          mensaje.textContent = result;
+          const text = await response.text();
+          document.getElementById("result").innerText = text;
         } catch (err) {
-          mensaje.textContent = "Error: " + err.message;
+          document.getElementById("result").innerText = "Error: " + err.message;
         }
       };
-      reader.readAsDataURL(photo);
+
+      reader.readAsDataURL(fileInput);
     });
   </script>
 </body>
 </html>
+
 
