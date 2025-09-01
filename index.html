@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Registro de Jugadores</title>
-<style>
-  body{margin:0;font-family:system-ui,sans-serif;background:#f5f6fb}
-  .wrap{max-width:980px;margin:36px auto;padding:0 16px}
-  h1{text-align:center;color:#1f2937}
-  .counter{text-align:center;color:#6b7280;margin-bottom:22px}
-  .card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px;margin-bottom:28px}
-  form{display:grid;gap:12px;max-width:560px;margin:0 auto}
-  input[type=text],input[type=file]{width:100%;padding:0 12px;height:44px;border:1px solid #e5e7eb;border-radius:10px;font-size:16px}
-  button{height:46px;border:0;background:#22c55e;color:#fff;border-radius:10px;font-weight:600;font-size:16px;cursor:pointer}
-  button:disabled{opacity:.7;cursor:not-allowed}
-  .msg{min-height:20px;font-size:14px;text-align:center}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
-  .player{background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden}
-  .player img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}
-  .pbody{padding:10px}
-  .name{font-weight:600;color:#1f2937}
-  .small{color:#6b7280;font-size:12px;margin-top:2px}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Registro de Jugadores</title>
+  <style>
+    body{margin:0;font-family:system-ui,sans-serif;background:#f5f6fb}
+    .wrap{max-width:980px;margin:36px auto;padding:0 16px}
+    h1{text-align:center;color:#1f2937}
+    .counter{text-align:center;color:#6b7280;margin-bottom:22px}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:16px;margin-bottom:28px}
+    form{display:grid;gap:12px;max-width:560px;margin:0 auto}
+    input[type=text],input[type=file]{width:100%;padding:0 12px;height:44px;border:1px solid #e5e7eb;border-radius:10px;font-size:16px}
+    button{height:46px;border:0;background:#22c55e;color:#fff;border-radius:10px;font-weight:600;font-size:16px;cursor:pointer}
+    button:disabled{opacity:.7;cursor:not-allowed}
+    .msg{min-height:20px;font-size:14px;text-align:center}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+    .player{background:#fff;border:1px solid #e5e7eb;border-radius:12px;overflow:hidden}
+    .player img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}
+    .pbody{padding:10px}
+    .name{font-weight:600;color:#1f2937}
+    .small{color:#6b7280;font-size:12px;margin-top:2px}
+  </style>
 </head>
 <body>
 <div class="wrap">
@@ -43,7 +43,9 @@
 </div>
 
 <script>
+// Cambia esta URL por la de tu script web publicado si alguna vez la actualizas.
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzeSlPx10-dm2p2wllLTz4nxB-xvlcOAdG5iK3AMj-wqKyJdlMdyaKEgLfHYdUMyZ5T/exec";
+
 const totalEl = document.querySelector("#total");
 const listaEl = document.querySelector("#lista");
 const form = document.querySelector("#form");
@@ -60,12 +62,17 @@ async function toBase64(file){
 }
 
 async function loadJugadores(){
+  msg.style.color = "#1f2937";
   try{
     const res=await fetch(WEB_APP_URL);
     const data=await res.json();
     totalEl.textContent=data.total??0;
     renderLista(data.jugadores||[]);
-  }catch(e){msg.textContent="No se pudo cargar la lista.";console.error(e);}
+  }catch(e){
+    msg.textContent="No se pudo cargar la lista.";
+    msg.style.color = "#b91c1c";
+    console.error(e);
+  }
 }
 
 function renderLista(items){
@@ -75,7 +82,7 @@ function renderLista(items){
   }
   listaEl.innerHTML=items.map(j=>`
     <div class="player">
-      <img src="${j.foto}" alt="${j.nombre}" loading="lazy">
+      <img src="${j.foto}" alt="${escapeHtml(j.nombre)}" loading="lazy">
       <div class="pbody">
         <div class="name">${escapeHtml(j.nombre)}</div>
         <div class="small">${j.fecha?new Date(j.fecha).toLocaleString():""}</div>
@@ -88,24 +95,34 @@ function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':
 
 form.addEventListener("submit", async e=>{
   e.preventDefault();
-  msg.textContent=""; 
+  msg.textContent="";
+  msg.style.color = "#1f2937";
   const nombre=document.querySelector("#nombre").value.trim();
   const file=document.querySelector("#foto").files[0];
-  if(!nombre||!file){msg.textContent="Completa nombre y foto.";return;}
-  if(file.size>8*1024*1024){msg.textContent="La imagen debe pesar menos de 8 MB.";return;}
+  if(!nombre||!file){msg.textContent="Completa nombre y foto."; msg.style.color="#b91c1c"; return;}
+  if(file.size>8*1024*1024){msg.textContent="La imagen debe pesar menos de 8 MB."; msg.style.color="#b91c1c"; return;}
   btn.disabled=true; btn.textContent="Enviando…";
   try{
     const {base64,mime}=await toBase64(file);
     const body=new URLSearchParams({nombre,foto:base64,mimetype:mime,filename:file.name});
-    const res=await fetch(WEB_APP_URL,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},body});
+    const res=await fetch(WEB_APP_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},
+      body
+    });
     const out=await res.json();
     if(out.status==="success"){
       msg.style.color="#16a34a";msg.textContent="Jugador registrado con éxito.";
       form.reset();
       await loadJugadores();
     } else throw new Error(out.message||"Error desconocido");
-  }catch(err){console.error(err);msg.style.color="#b91c1c";msg.textContent="Error al registrar: "+err.message;}
-  finally{btn.disabled=false;btn.textContent="Registrar";}
+  }catch(err){
+    console.error(err);
+    msg.style.color="#b91c1c";
+    msg.textContent="Error al registrar: "+err.message;
+  } finally{
+    btn.disabled=false;btn.textContent="Registrar";
+  }
 });
 
 loadJugadores();
