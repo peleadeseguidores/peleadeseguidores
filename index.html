@@ -1,131 +1,127 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Registro de Jugadores</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pelea de Seguidores</title>
   <style>
+    /* === ESTILOS GENERALES === */
     body {
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #4facfe, #00f2fe);
       margin: 0;
-      padding: 0;
-      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background: linear-gradient(135deg, #1a1a1a, #333);
+      color: white;
       display: flex;
       flex-direction: column;
       align-items: center;
+      min-height: 100vh;
     }
-    h1 {
-      color: #fff;
-      margin-top: 20px;
-    }
-    .card {
-      background: #fff;
-      border-radius: 16px;
-      padding: 20px;
-      margin: 20px;
-      width: 300px;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.2);
+
+    header {
+      background: #222;
+      width: 100%;
+      padding: 15px;
       text-align: center;
+      font-size: 1.5rem;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
     }
-    input, button {
-      margin: 8px 0;
-      padding: 10px;
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      padding: 20px;
+    }
+
+    .game-container {
+      background: #111;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.7);
+      text-align: center;
       width: 90%;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+      max-width: 700px;
     }
+
+    canvas {
+      border: 2px solid #00ffcc;
+      border-radius: 10px;
+      background: black;
+    }
+
+    footer {
+      text-align: center;
+      padding: 10px;
+      background: #111;
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+
     button {
-      background: #4facfe;
-      color: white;
+      background: #00ffcc;
       border: none;
+      padding: 10px 20px;
+      margin-top: 15px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
       cursor: pointer;
       transition: 0.3s;
     }
+
     button:hover {
-      background: #3894e0;
-    }
-    #players {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-    .player-card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 10px;
-      margin: 10px;
-      width: 200px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-    .player-card img {
-      border-radius: 50%;
-      width: 80px;
-      height: 80px;
+      background: #00b38f;
     }
   </style>
 </head>
 <body>
-  <h1>Registro de Jugadores</h1>
+  <header>⚔️ Pelea de Seguidores ⚔️</header>
 
-  <div class="card">
-    <input type="text" id="username" placeholder="Nombre del jugador" required>
-    <input type="text" id="photo" placeholder="URL de la foto (GitHub o enlace)">
-    <button onclick="addPlayer()">Agregar Jugador</button>
-    <button onclick="downloadJSON()">Descargar JSON</button>
-  </div>
+  <main>
+    <div class="game-container">
+      <canvas id="gameCanvas" width="600" height="400"></canvas>
+      <br>
+      <button onclick="startGame()">▶ Iniciar Juego</button>
+    </div>
+  </main>
 
-  <div id="players"></div>
+  <footer>
+    Creado con ❤️ para los seguidores | GitHub Pages
+  </footer>
 
   <script>
-    let players = [];
+    // === LÓGICA DEL JUEGO (ejemplo simple, luego pegamos el tuyo) ===
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
 
-    function addPlayer() {
-      const name = document.getElementById("username").value.trim();
-      const photo = document.getElementById("photo").value.trim() || "https://via.placeholder.com/80";
+    let x = 50, y = 50;
 
-      if (!name) {
-        alert("Escribe un nombre de jugador");
-        return;
-      }
-
-      const player = { name, image: photo };
-      players.push(player);
-
-      renderPlayers();
-
-      // limpiar inputs
-      document.getElementById("username").value = "";
-      document.getElementById("photo").value = "";
+    function startGame() {
+      x = 50;
+      y = 50;
+      draw();
     }
 
-    function renderPlayers() {
-      const container = document.getElementById("players");
-      container.innerHTML = "";
-      players.forEach((p, index) => {
-        container.innerHTML += `
-          <div class="player-card">
-            <img src="${p.image}" alt="Avatar">
-            <h3>${p.name}</h3>
-            <button onclick="removePlayer(${index})">Eliminar</button>
-          </div>
-        `;
-      });
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#00ffcc";
+      ctx.fillRect(x, y, 50, 50);
     }
 
-    function removePlayer(index) {
-      players.splice(index, 1);
-      renderPlayers();
-    }
+    // Movimiento con teclas
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowUp") y -= 10;
+      if (e.key === "ArrowDown") y += 10;
+      if (e.key === "ArrowLeft") x -= 10;
+      if (e.key === "ArrowRight") x += 10;
+      draw();
+    });
 
-    function downloadJSON() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(players, null, 2));
-      const dlAnchor = document.createElement("a");
-      dlAnchor.setAttribute("href", dataStr);
-      dlAnchor.setAttribute("download", "players.json");
-      dlAnchor.click();
-    }
+    // Dibuja al inicio
+    draw();
   </script>
 </body>
 </html>
