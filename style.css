@@ -1,4 +1,3 @@
-/* --- Estilos generales --- */
 body {
   margin: 0;
   font-family: 'Segoe UI', Arial, sans-serif;
@@ -11,7 +10,6 @@ body {
   align-items: center;
 }
 
-/* --- Encabezado --- */
 header, .title-bar {
   background: rgba(44, 44, 92, 0.92);
   padding: 18px 0 12px 0;
@@ -25,7 +23,6 @@ header, .title-bar {
   letter-spacing: 2px;
 }
 
-/* --- Contenedor principal --- */
 .wrap {
   margin-top: 36px;
   padding: 24px;
@@ -40,7 +37,6 @@ header, .title-bar {
   align-items: center;
 }
 
-/* --- Contador --- */
 .counter {
   font-size: 1.25rem;
   margin-bottom: 22px;
@@ -54,7 +50,6 @@ header, .title-bar {
   margin-top: 6px;
 }
 
-/* --- Card / Formulario --- */
 .card {
   background: rgba(255,255,255,0.13);
   border-radius: 18px;
@@ -105,7 +100,6 @@ input[type="file"]::-webkit-file-upload-button:hover {
   color: #23243a;
 }
 
-/* --- Botón --- */
 button {
   margin-top: 6px;
   padding: 12px 32px;
@@ -127,7 +121,6 @@ button:hover, button:focus {
   color: #23243a;
 }
 
-/* --- Mensaje de estado --- */
 .msg {
   margin-top: 7px;
   font-size: 1rem;
@@ -136,7 +129,6 @@ button:hover, button:focus {
   transition: color 0.2s;
 }
 
-/* --- SVG Swords --- */
 .sword {
   height: 38px;
   width: 38px;
@@ -149,7 +141,6 @@ button:hover, button:focus {
 .sword.left { margin-right: 15px; }
 .sword.right { margin-left: 15px; }
 
-/* --- Footer --- */
 footer {
   margin-top: 44px;
   font-size: 15px;
@@ -158,7 +149,6 @@ footer {
   letter-spacing: 1px;
 }
 
-/* --- Responsividad --- */
 @media (max-width: 480px) {
   .wrap {
     padding: 10px;
