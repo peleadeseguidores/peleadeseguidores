@@ -194,11 +194,16 @@ button:hover, button:focus {
 }
 .winner-user {
   font-size: 1rem;
-  color: #d6249f;
   font-weight: 600;
   margin-left: 6px;
   letter-spacing: 1px;
-  text-shadow: 0 1px 3px #fd5949aa;
+  /* DORADO INSTAGRAM */
+  background: linear-gradient(90deg,#ffdc80 0%, #ffd700 60%, #fd5949 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+  text-shadow: 0 1px 3px #ffd70044;
 }
 @media (max-width: 480px) {
   .wrap {
